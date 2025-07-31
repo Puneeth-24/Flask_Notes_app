@@ -1,16 +1,19 @@
-from flask import Flask,render_template,request,redirect,url_for,Response,send_from_directory,jsonify
+from flask import Flask,render_template,request,redirect,url_for,send_from_directory,jsonify,session
 from flask import session
 import json
 import os,uuid
 
 app=Flask(__name__)
 app.secret_key="it's the same type of stand as star platinum"
-notes=[] #list of tuples (note,title)
+
+
 #home to render tasks
 @app.route('/')
 def home():
-    return render_template('index.html',message='Hello world')
-
+    if 'notes' not in session:
+        session['notes']=[]
+    notes=session['notes'] #list of tuples (title,notes)
+    return render_template('home.html',notes=notes)
 
 #adding tasks
 @app.route('/add',methods=['GET','POST'])
@@ -23,18 +26,22 @@ def add_note():
                 for task in uploaded_json_file:
                     title=task['title']
                     note=task['note']
-                    notes.append((title,note))
+                    session['notes'].append((title,note))
+                    session.modified=True
         title=request.form.get('title')
         note=request.form.get('note')
         if title!='' and note !='':
-            notes.append((title,note))
+            session['notes'].append((title,note))
+            session.modified=True
         return redirect(url_for('home'))
 
     return render_template('add_note.html')    
     
 
+
 @app.route('/download')
 def download():
+    notes=session['notes']
     tasks_as_dict=[{'title':title,'note':note}for title,note in notes]
     
 
@@ -56,31 +63,11 @@ def capitallize_title(titles):
     new_title=' '.join([title.capitalize() for title in  titles.split(" ")])
     return new_title
 
-@app.route('/post_tasks')
-def post_tasks():
-    tasks_as_dict=[{'title':title,'note':note}for title,note in notes]
-    json_tasks_as_dict=jsonify(tasks_as_dict)
-
-    return json_tasks_as_dict
-
-@app.route('/set_data')
-def set_data():
-    session['name']='Puneeth'
-    session['age']=20
-    return render_template('index.html',message='This is set data')
-
-@app.route('/get_data')
-def get_data():
-    if 'name' in session.keys() and 'age' in session.keys():
-        name=session['name']
-        age=session['age']
-        return render_template('index.html',message=f'{name},{age}')
-    return render_template('index.html',message='No data to get')
-
-@app.route('/remove_data')
-def remove_data():
+@app.route('/clear_session')
+def clear_session():
     session.clear()
-    return render_template('index.html',message='session was removed')
+    return redirect('/')
+
 
 if __name__=='__main__':
     app.run(debug=True)

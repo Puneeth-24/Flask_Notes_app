@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}{{super()}}Home{% endblock %}
 {% block content %}
-    <button id="post_req">Send Post Req</button>
+    
     <ol>
         {% for note,title in notes %}
             <li><h3>{{title|capitalize_title}}</h3>
@@ -16,7 +16,8 @@
     {% if  notes  %}
         <button><a href="{{url_for('download')}}" id="download_link" style="text-decoration: none;">Download as JSON file</a></button>
     {% endif %}
-    {% block javascript %}
+    <button ><a href="{{url_for('clear_session')}}" id='add_link'style="text-decoration: none;">Clear current session and start a new session</a></button>
+   {% block javascript %}
          
     {% endblock javascript %}    
 {% endblock %}
