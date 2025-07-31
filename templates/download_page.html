@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Download{% endblock title %}
+{% block content %}
+    <h1>Download JSON file</h1>
+    <a href="{{ url_for('downloadFile', filename=filename) }}">Download</a>
+{% endblock content %}

@@ -1,0 +1,7 @@
+#add_link,#download_link{
+    color: inherit;
+}
+
+#add_link:visited,#download_link:visited{
+    color: inherit;
+}

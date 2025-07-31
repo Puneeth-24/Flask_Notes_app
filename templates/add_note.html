@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{super()}} Add Note
+{% endblock title %}
+{% block content %}
+    {{super()}}
+    <h2>Add Note</h2>
+    <form  method="POST"  enctype="multipart/form-data">
+        <label for="title">Enter Title:</label><input type="text" name="title"></input><br><br>
+        <label for="note">Enter Note:</label><textarea name="note"></textarea>
+        <h3>OR</h3>
+        <p>Uppload JSON file of the tasks</p>
+        <input type="file" name="file" accept="application/json">
+        <br><br><button type="submit">Add Note</button>
+    </form>
+{% endblock content %}
