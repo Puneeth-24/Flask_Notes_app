@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}{{super()}}Home{% endblock %}
 {% block content %}
-    
+    <header><h1>{{name}}'s Notes</h1></header>
     <ol>
-        {% for note,title in notes %}
+        {% for title,note in notes %}
             <li><h3>{{title|capitalize_title}}</h3>
                 <p>{{note}}</p>
             </li>

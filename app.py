@@ -1,5 +1,5 @@
 from flask import Flask,render_template,request,redirect,url_for,send_from_directory,jsonify,session
-from flask import session
+from flask import session,make_response
 import json
 import os,uuid
 
@@ -7,13 +7,26 @@ app=Flask(__name__)
 app.secret_key="it's the same type of stand as star platinum"
 
 
+
+#welcome page
+@app.route('/',methods=['GET','POST'])
+def welcome():
+    if request.method=='POST':
+        name=request.form.get('name')
+        response=make_response(redirect(url_for('home')))
+        response.set_cookie('name',name)
+        return response
+    return render_template('welcome.html')
+
+
 #home to render tasks
-@app.route('/')
+@app.route('/home')
 def home():
+    name=request.cookies.get('name')
     if 'notes' not in session:
         session['notes']=[]
     notes=session['notes'] #list of tuples (title,notes)
-    return render_template('home.html',notes=notes)
+    return render_template('home.html',notes=notes,name=name)
 
 #adding tasks
 @app.route('/add',methods=['GET','POST'])
@@ -65,9 +78,10 @@ def capitallize_title(titles):
 
 @app.route('/clear_session')
 def clear_session():
+    response=make_response(redirect('/'))
+    response.delete_cookie('name')
     session.clear()
-    return redirect('/')
-
+    return response
 
 if __name__=='__main__':
     app.run(debug=True)

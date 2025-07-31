@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}
+    Welcome
+{% endblock title %}
+{% block content%}
+    <form action="{{url_for('welcome')}}" method="POST">
+        <label for="name"><strong>Enter name:</strong></label><input type="text" name="name" required>
+        <button type="submit">Go</button>
+    </form>
+{% endblock content%}
