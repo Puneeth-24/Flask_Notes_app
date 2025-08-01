@@ -1,3 +1,5 @@
 venv/
 downloads/
-__pycache___/
+__pycache__/
+.vscode/
+instance/

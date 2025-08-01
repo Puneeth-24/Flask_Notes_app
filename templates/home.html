@@ -1,23 +1,48 @@
 {% extends 'base.html' %}
 {% block title %}{{super()}}Home{% endblock %}
 {% block content %}
+    {% with message=get_flashed_messages() %}
+        {% if message %}
+            <h3>{{message[0]}}!!</h3>
+            
+        {% endif %}
+    {% endwith %}
     <header><h1>{{name}}'s Notes</h1></header>
+
+    
     <ol>
-        {% for title,note in notes %}
+        {% for title,note,id in notes %}
             <li><h3>{{title|capitalize_title}}</h3>
-                <p>{{note}}</p>
+                <p style="white-space: pre-line;">{{ note }}</p><button onclick="deleteNote({{id}})">Remove</button>
+
             </li>
             {% else %}
-                <h3>NO NOTES!!</h3>
+                <h3>NO NOTES!!</h3> 
         {% endfor %}
     </ol>
-    
     <button ><a href="{{url_for('add_note')}}" id='add_link'style="text-decoration: none;">Add Note</a></button>
     {% if  notes  %}
         <button><a href="{{url_for('download')}}" id="download_link" style="text-decoration: none;">Download as JSON file</a></button>
     {% endif %}
-    <button ><a href="{{url_for('clear_session')}}" id='add_link'style="text-decoration: none;">Clear current session and start a new session</a></button>
-   {% block javascript %}
-         
-    {% endblock javascript %}    
+    <button ><a href="{{url_for('welcome')}}" id='add_link'style="text-decoration: none;">Exit</a></button>
+    
+    <script type="text/javascript">
+        async function deleteNote(id){
+            try{
+                let response = await fetch(`http://127.0.0.1:5000/remove/${id}`,{method:'DELETE'})
+                if (response.ok){
+                    alert('removed note')
+                    window.location.reload()
+                    
+                }
+            }
+            catch(err){
+                alert('Something went wrong during removing')
+            }
+        }
+    </script>
+    
+    
+
+      
 {% endblock %}
