@@ -7,7 +7,14 @@
     <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
 </head>
 <body>
-    <main>{% block content %}{% endblock %}</main>
+    <main>{% block content %}
+        {% with message=get_flashed_messages() %}
+        {% if message %}
+            <h3>{{message[0]}}!!</h3>
+            
+        {% endif %}
+    {% endwith %}    
+    {% endblock %}</main>
     <footer></footer>
         {% block javascript %}
             

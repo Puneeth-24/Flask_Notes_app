@@ -1,57 +1,86 @@
 from flask import render_template,request,session,flash,redirect,url_for,send_from_directory
+from flask_login import login_user,logout_user,current_user,login_required
 from models import User,Note
-from extensions import db
+from extensions import db,bcrypt
 import json
 from sqlalchemy.exc import SQLAlchemyError
 import os,uuid
 
 def register_routes(app):
 
-    #check if user exists if not create the user
-    @app.route('/',methods=['GET','POST'])
+    
+    @app.route('/')
     def welcome():
-        if request.method=='POST':
-            username=request.form.get('name').strip()
-            if not username:
-                flash("Please enter a valid name.")
-                return redirect(url_for('welcome'))
-            user=User.query.filter_by(username=username).first()
-            if not user:
-                user=User(username=username)    
-                try:
-                    db.session.add(user)
-                    db.session.commit()
-                except Exception as e:
-                    db.session.rollback()
-                    flash('Error occured during user creation','error')
-                    return redirect(url_for('welcome'))
-            
-            
-            session.clear()
-            session['username']=user.username
-            session['user_id']=user.user_id
-            flash(f"Welcome {user.username}")
-            return redirect(url_for('home'))
-        session.clear()
         return render_template('welcome.html')
     
+    @app.route('/signup',methods=['GET','POST'])
+    def signup():
+        if request.method=='GET':
+            return render_template('signup.html')
+        
+        if request.method=='POST':
+            username=request.form.get('username')
+            password=request.form.get('password')
+            
+            #checking if the user exists already
+            checking_user=User.query.filter_by(username=username).first()
+            if  checking_user:
+                flash("User already exists")
+                redirect(url_for('signup'))
+            
+            hash_password=bcrypt.generate_password_hash(password)
+            user=User(username=username,password=hash_password)
+            try:
+                db.session.add(user)
+                db.session.commit()
+                flash('Sign up successfull')
+            except Exception :
+                db.session.rollback()
+                flash("Something went wrong during sigining up, please try agian later!!")
+            return redirect(url_for('welcome'))
+
+    @app.route('/login',methods=['GET','POST'])
+    def login():
+        if request.method=='GET':
+            return render_template('login.html')
+        if request.method=='POST':
+            username=request.form.get('username')
+            password=request.form.get('password')
+
+            user=User.query.filter_by(username=username).first()
+            if not user:
+                flash('User does not exist,please sign up')
+                return redirect(url_for('signup'))
+            if bcrypt.check_password_hash(user.password,password):
+                login_user(user)
+                return redirect(url_for('home'))
+            else:
+                flash('Wrong password, please try again!!')
+                return redirect(url_for('login'))
+            
+    @app.route('/logout')
+    @login_required
+    def logout():
+        logout_user()
+        flash('Successfully logged out!!')
+        return redirect(url_for('welcome'))
+            
+
+        
+
     #display the notes
     @app.route('/home')
+    @login_required
     def home():
-        if 'user_id' not in session:
-            return redirect(url_for('welcome'))
-        username=session.get('username')
-        user_id=session.get('user_id')
-        user=User.query.get(user_id)
+        username=current_user.username
         notes=[
-            (note.title,note.note,note.note_id) for note in user.notes
+            (note.title,note.note,note.note_id) for note in current_user.notes
         ]
         return render_template('home.html',notes=notes,name=username)
 
     @app.route('/add',methods=['GET','POST'])
+    @login_required
     def add_note():
-        if 'user_id' not in session:
-            return redirect(url_for('welcome'))
         notes=[]
         if request.method=='POST':
             if "file" in request.files:
@@ -62,7 +91,7 @@ def register_routes(app):
                         for task in uploaded_json_file:
                             title=task['title'].strip()
                             note_content=task['note'].strip()
-                            notes.append(Note(user_id=session.get('user_id'),title=title,note=note_content))
+                            notes.append(Note(user_id=current_user.user_id,title=title,note=note_content))
                             # new_note=Note(user_id=session.get('user_id'),title=title,note=note_content)
                             # db.session.add(new_note)
                             # db.session.commit()
@@ -73,7 +102,7 @@ def register_routes(app):
             title=request.form.get('title','').strip()
             note_content=request.form.get('note','').strip()
             if title!='' and note_content !='':
-                notes.append(Note(user_id=session.get('user_id'),title=title,note=note_content))
+                notes.append(Note(user_id=current_user.user_id,title=title,note=note_content))
 
             try:
                 db.session.add_all(notes)
@@ -88,9 +117,8 @@ def register_routes(app):
         return render_template('add_note.html')
     
     @app.route('/download')
+    @login_required
     def download():
-        if 'user_id' not in session:
-            return redirect(url_for('welcome'))
         user_id=session.get('user_id')
         user=User.query.get(user_id)
         tasks_as_dict=[{'title':note.title,'note':note.note}for note in user.notes]
@@ -109,12 +137,11 @@ def register_routes(app):
         return send_from_directory('downloads',filename,as_attachment=True,download_name='task.json')    
 
     @app.route('/remove/<int:note_id>',methods=['DELETE'])
+    @login_required
     def remove(note_id):
-        if 'user_id' not in session:
-            return redirect(url_for('welcome'))
         try:
             note=Note.query.get(note_id)
-            if note and note.user_id==session['user_id']:
+            if note and note.user_id==current_user.user_id:
                 db.session.delete(note)
                 db.session.commit()
                 flash('Successfully removed note')

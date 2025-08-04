@@ -1,12 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}{{super()}}Home{% endblock %}
 {% block content %}
-    {% with message=get_flashed_messages() %}
-        {% if message %}
-            <h3>{{message[0]}}!!</h3>
-            
-        {% endif %}
-    {% endwith %}
+    {{super()}}
     <header><h1>{{name}}'s Notes</h1></header>
 
     
@@ -24,7 +19,7 @@
     {% if  notes  %}
         <button><a href="{{url_for('download')}}" id="download_link" style="text-decoration: none;">Download as JSON file</a></button>
     {% endif %}
-    <button ><a href="{{url_for('welcome')}}" id='add_link'style="text-decoration: none;">Exit</a></button>
+    <button ><a href="{{url_for('logout')}}" id='add_link' style="text-decoration: none;">Logout</a></button>
     
     <script type="text/javascript">
         async function deleteNote(id){

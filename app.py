@@ -1,8 +1,8 @@
-from extensions import db
+from extensions import db,login_manager,bcrypt
 from flask import Flask
 from flask_migrate import Migrate
-from flask_cors import CORS
 from dotenv import load_dotenv
+from models import User
 import os
 
 
@@ -11,6 +11,17 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///notes.db'
     load_dotenv()
     app.secret_key=os.getenv('SECRET_KEY')
+
+    login_manager.init_app(app)
+    bcrypt.init_app(app)
+
+    @login_manager.user_loader
+    def get_user(user_id):
+        return User.query.get(user_id)
+    
+    @login_manager.unauthorized_handler
+    def unauthorized_fallback():
+        return "Your are unauthorized to visit this!!"
     
     db.init_app(app)
 

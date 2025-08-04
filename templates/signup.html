@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}
+    Sign up
+{% endblock title %}
+
+{% block content %}
+        {{super()}}
+
+    <h1>Please Sign Up </h1>
+    <form action="{{url_for('signup')}}" method="post">
+        <label for="username"><strong>Username:</strong></label><input type="text" name="username" placeholder="enter username"><br>
+        <label for="password"><strong>Password:</strong></label><input type="password" name="password" placeholder="enter password"><br>
+        <button type="submit">Sign Up</button>
+    </form>
+{% endblock content %}
