@@ -7,7 +7,7 @@
         {{super()}}
 
     <h1>Please Sign Up </h1>
-    <form action="{{url_for('signup')}}" method="post">
+    <form action="{{url_for('core.signup')}}" method="post">
         <label for="username"><strong>Username:</strong></label><input type="text" name="username" placeholder="enter username"><br>
         <label for="password"><strong>Password:</strong></label><input type="password" name="password" placeholder="enter password"><br>
         <button type="submit">Sign Up</button>

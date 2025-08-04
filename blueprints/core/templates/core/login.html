@@ -3,7 +3,7 @@
 {% block content %}
     {{super()}}
     <h1>Please Login</h1>
-    <form action="{{url_for('login')}}" method="post">
+    <form action="{{url_for('core.login')}}" method="post">
         <label for="username"><strong>Username:</strong></label><input type="text" name="username" placeholder="Enter username"><br>
         <label for="password"><strong>Password:</strong></label><input type="password" name="password" placeholder="Enter password"><br>
         <button type="submit">Login</button>

@@ -15,16 +15,16 @@
                 <h3>NO NOTES!!</h3> 
         {% endfor %}
     </ol>
-    <button ><a href="{{url_for('add_note')}}" id='add_link'style="text-decoration: none;">Add Note</a></button>
+    <button ><a href="{{url_for('notes.add_note')}}" id='add_link'style="text-decoration: none;">Add Note</a></button>
     {% if  notes  %}
-        <button><a href="{{url_for('download')}}" id="download_link" style="text-decoration: none;">Download as JSON file</a></button>
+        <button><a href="{{url_for('notes.download')}}" id="download_link" style="text-decoration: none;">Download as JSON file</a></button>
     {% endif %}
-    <button ><a href="{{url_for('logout')}}" id='add_link' style="text-decoration: none;">Logout</a></button>
+    <button ><a href="{{url_for('core.logout')}}" id='add_link' style="text-decoration: none;">Logout</a></button>
     
     <script type="text/javascript">
         async function deleteNote(id){
             try{
-                let response = await fetch(`http://127.0.0.1:5000/remove/${id}`,{method:'DELETE'})
+                let response = await fetch(`http://127.0.0.1:5000/notes/remove/${id}`,{method:'DELETE'})
                 if (response.ok){
                     alert('removed note')
                     window.location.reload()
